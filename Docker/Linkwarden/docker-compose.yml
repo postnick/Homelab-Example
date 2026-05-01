@@ -1,0 +1,39 @@
+services:
+  linkwarden:
+    container_name: linkwarden
+    image: ghcr.io/linkwarden/linkwarden:latest
+    restart: unless-stopped
+    volumes:
+#Make these directories again from the Host
+      - /mnt/Docker/Linkwarden/data:/data/data
+    environment:
+      - DATABASE_URL=postgresql://USER:PASSWORD@linkwarden-db:5432/linkwarden
+      - NEXTAUTH_SECRET=SuperPassword
+      - NEXTAUTH_URL=http://localhost/api/v1/auth
+    ports:
+      - "4222:3000"
+    networks:
+      - linkwarden_default
+    user: 1000:1000
+
+  linkwarden-db:
+    container_name: linkwarden-db
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+#Unsure if needed
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=USER
+      - POSTGRES_PASSWORD=PASSWORD
+      - POSTGRES_DB=linkwarden
+    volumes:
+#Make these directories again from the Host
+      - /mnt/Docker/Linkwarden/pgdata:/var/lib/postgresql/data
+    networks:
+    - linkwarden_default
+    user: 1000:1000
+
+networks:
+  linkwarden_default:
+    external: true

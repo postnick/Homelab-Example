@@ -1,0 +1,39 @@
+#Dont' forget to make your Network before you start this if you need ipv6
+
+services:
+  koito:
+    image: gabehf/koito:latest
+    container_name: koito
+    depends_on:
+      - db
+    environment:
+      - KOITO_DATABASE_URL=postgres://postgres:secret_password@db:5432/koitodb
+      - KOITO_ALLOWED_HOSTS=localhost:4110
+      - KOITO_ENABLE_LBZ_RELAY=true
+      - KOITO_LBZ_RELAY_URL=https://api.listenbrainz.org/1
+    #From the ENV File     
+      - KOITO_LBZ_RELAY_TOKEN=${LBZ_RELAY_TOKEN_ENV}
+    ports:
+      - "4110:4110"
+    volumes:
+      - /mnt/Docker/koito/data:/etc/koito
+    networks:
+    - koito_default
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    container_name: psql
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: koitodb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: DB_PASSWORD_ENV
+    volumes:
+      - /mnt/Docker/koito/db:/var/lib/postgresql/data
+    networks:
+    - koito_default
+
+networks:
+  koito_default:
+    external: true

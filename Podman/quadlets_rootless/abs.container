@@ -1,0 +1,27 @@
+[Unit]
+Description=Audiobookshelf
+After=local-fs.target
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=Audiobookshelf
+Image=ghcr.io/advplyr/audiobookshelf:latest
+AutoUpdate=registry
+NoNewPrivileges=true
+
+PublishPort=13378:80
+
+#Data and Config files stored on NFS Share is mounted into a PROD folder
+#I have had good luck using NFS for this but your milage may vary. You can also use bind mounts to local folders if you prefer.
+Volume=/PATH/TO/config:/config:z
+Volume=/PATH/TO/metadata:/metadata:z
+
+#NFS Share for Media is here - we have two folders on two shares
+Volume=/PATH/TO/AUDIOBOOKS:/audiobooks:z
+
+[Service]
+Restart=unless-stopped
+
+[Install]
+WantedBy=default.target

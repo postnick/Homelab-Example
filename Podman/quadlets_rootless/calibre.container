@@ -1,0 +1,27 @@
+[Unit]
+Description=Calibre-Web Container
+After=network-online.target
+Wants=network-online.target
+After=local-fs.target
+
+[Container]
+ContainerName=Calibre-Web
+Image=lscr.io/linuxserver/calibre-web:latest
+
+Volume=/PATH/TO/Data:/config:z
+Volume=/PATH/TO/Ebooks:/books:z
+
+# Environment variables for LinuxServer.io image
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=tz=America/Chicago
+
+# Adjust the host port (left side of the colon) if 8083 is in use
+PublishPort=8083:8083
+
+[Service]
+Restart=unless-stopped
+# You can use 'on-failure' or 'unless-stopped' as well
+
+[Install]
+WantedBy=default.target

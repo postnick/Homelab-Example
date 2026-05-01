@@ -1,0 +1,25 @@
+#No Personal Information in here so this is more Secure
+services:
+  audiobookshelf:
+    container_name: Audiobook
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    # ABS runs on port 13378:80 by default. If you want to change
+    ports:
+      - 13378:80
+    volumes:
+    #Data and Config files stored on NFS Share is mounted
+      - /PATH/TO/CONFIG:/config
+      - /PATH/TO/METADATA:/metadata
+      - /PATH/TO/AUDIOBOOKS:/audiobooks
+    restart: unless-stopped
+    # docker container as a specific user. You will need to change
+    # the UID and GID to the correct values for your user.
+    environment:
+      - TZ=America/Chicago
+      - PUID=1000
+      - PGID=1000
+
+networks:
+  default:
+    external: true
+    name: audiobook

@@ -1,0 +1,58 @@
+[Unit]
+Description=Navidrome music server
+Wants=network-online.target
+After=network-online.target
+After=local-fs.target
+
+[Container]
+ContainerName=Navidrome
+Image=docker.io/deluan/navidrome:latest
+AutoUpdate=registry
+PublishPort=4533:4533
+
+# Data and Config files stored on NFS Share is mounted into a PROD folder
+Volume=/PATH/TO/DATA:/data:z
+Volume=/PATH/TO/Music:/music:z
+
+# Security Label disable needed for SELinux
+SecurityLabelDisable=true
+Environment=ND_LOGLEVEL=info
+
+# Downloads -  Sharing links - Logging
+Environment=ND_ENABLEDOWNLOADS=true
+Environment=ND_ENABLESHARING=true
+Environment=ND_UIWELCOMEMESSAGE="Welcome to my Music Server."
+
+# Playlist Path
+Environment=ND_AUTOIMPORTPLAYLISTS=true
+Environment=ND_SMARTPLAYLISTREFRESHDELAY="300s"
+Environment=ND_COVERARTPRIORITY="embedded, cover.*, folder.*, front.*, external"
+
+# Plugins
+Environment=ND_PLUGINS_ENABLED=true
+Environment=ND_PLUGINS_FOLDER="/data/plugins" 
+Environment=ND_PLUGINS_AUTORELOAD=true
+Environment=ND_PLUGINS_LOGLEVEL=debug
+Environment=ND_PLUGINS_CACHESIZE="200MB"
+
+# Telemetry - NEEDS TO BE TRUE TO ENABLE LASTFM, LISTENBRAINZ
+Environment=ND_ENABLEINSIGHTSCOLLECTOR=true
+Environment=ND_ENABLEEXTERNALSERVICES=true
+
+# Listenbrainz for scrobbling 
+Environment=ND_LISTENBRAINZ_ENABLED='true'
+Environment=ND_LISTENBRAINZ_BASEURL='https://api.listenbrainz.org/1/'
+#Environment=ND_LISTENBRAINZ_TOKEN='MUSICBRAINZ_TOKEN' --- IGNORE for multi user - you will use in the web ui---
+
+# LastFM API info - For scrobbling! - YOu need these here for metadta to come like artist photos
+Environment=ND_LASTFM_ENABLED=true
+Environment=ND_LASTFM_LANGUAGE=en
+Environment=ND_LASTFM_APIKEY='LAST_FM_API_KEY'
+Environment=ND_LASTFM_SECRET='LAST_FM_SECRET_KEY'
+
+[Service]
+Restart=unless-stopped
+TimeoutStartSec=90
+
+[Install]
+WantedBy=default.target

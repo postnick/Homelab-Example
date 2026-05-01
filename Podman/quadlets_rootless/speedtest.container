@@ -1,0 +1,17 @@
+[Unit]
+Description=OpenSpeedTest Service
+After=network-online.target
+
+[Container]
+Image=docker.io/openspeedtest/latest
+ContainerName=Openspeedtest
+PublishPort=3005:3000
+PublishPort=3006:3001
+
+[Service]
+# Restart=always is the systemd equivalent of "unless-stopped"
+Restart=always
+
+[Install]
+# This pulls the service into the regular boot/login flow
+WantedBy=default.target
