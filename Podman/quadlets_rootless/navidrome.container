@@ -11,21 +11,27 @@ AutoUpdate=registry
 PublishPort=4533:4533
 
 # Data and Config files stored on NFS Share is mounted into a PROD folder
-Volume=/PATH/TO/DATA:/data:z
-Volume=/PATH/TO/Music:/music:z
+#Volume=/mnt/Docker/Navidrome:/data:Z
+#The NFS Performance isn't working so well for me so i"m goign to try local and backup frequently. 
+Volume=/home/$USER/.config/navidrome:/data:Z
+Volume=/mnt/Media/iTunes/Music:/music:ro
 
 # Security Label disable needed for SELinux
 SecurityLabelDisable=true
-Environment=ND_LOGLEVEL=info
 
-# Downloads -  Sharing links - Logging
+# Options for LogLevel are info, warn, error.
+Environment=ND_LOGLEVEL=warn 
+Environment=ND_AGENTS="alastfm,listenbrainz,deezer"
+Environment=ND_SCANSCHEDULE="24h"
+
+# Downloads - Sharing links - Logging
 Environment=ND_ENABLEDOWNLOADS=true
 Environment=ND_ENABLESHARING=true
-Environment=ND_UIWELCOMEMESSAGE="Welcome to my Music Server."
+Environment=ND_UIWELCOMEMESSAGE="Welcome to my Music Server. All music has been purchased by owner."
 
 # Playlist Path
 Environment=ND_AUTOIMPORTPLAYLISTS=true
-Environment=ND_SMARTPLAYLISTREFRESHDELAY="300s"
+Environment=ND_SMARTPLAYLISTREFRESHDELAY="3600s"
 Environment=ND_COVERARTPRIORITY="embedded, cover.*, folder.*, front.*, external"
 
 # Plugins
@@ -39,19 +45,26 @@ Environment=ND_PLUGINS_CACHESIZE="200MB"
 Environment=ND_ENABLEINSIGHTSCOLLECTOR=true
 Environment=ND_ENABLEEXTERNALSERVICES=true
 
-# Listenbrainz for scrobbling 
+# Using a local scrobbling as a docker in koito. Appears I do not need listenbrainz token for this to work as its a per user. Leaving it in Config file though just incase I need it again. 
 Environment=ND_LISTENBRAINZ_ENABLED='true'
-Environment=ND_LISTENBRAINZ_BASEURL='https://api.listenbrainz.org/1/'
-#Environment=ND_LISTENBRAINZ_TOKEN='MUSICBRAINZ_TOKEN' --- IGNORE for multi user - you will use in the web ui---
+Environment=ND_LISTENBRAINZ_BASEURL='https://koito.DOMAIN.COM/apis/listenbrainz/1'
 
-# LastFM API info - For scrobbling! - YOu need these here for metadta to come like artist photos
+# LastFM API info - For scrobbling! - You need these here for metadta to come like artist photos
 Environment=ND_LASTFM_ENABLED=true
 Environment=ND_LASTFM_LANGUAGE=en
-Environment=ND_LASTFM_APIKEY='LAST_FM_API_KEY'
-Environment=ND_LASTFM_SECRET='LAST_FM_SECRET_KEY'
+Environment=ND_LASTFM_APIKEY='KEY_HERE'
+Environment=ND_LASTFM_SECRET='KEY_HERE'
+
+# Healthechk - Note the port is the inside port for the container not the public port.
+HealthCmd=wget -qO- http://localhost:4533 || exit 1
+HealthInterval=5m
+HealthRetries=5
+HealthTimeout=30s
+HealthOnFailure=restart
 
 [Service]
-Restart=unless-stopped
+Restart=on-failure
+RestartSec=10
 TimeoutStartSec=90
 
 [Install]
